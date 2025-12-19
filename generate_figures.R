@@ -2,6 +2,7 @@ library(tidyverse)
 library(sf)
 library(units)
 library(cowplot)
+library(ggspatial)
 library(maptiles)
 library(tidyterra)
 
@@ -34,11 +35,13 @@ canopy_gg <- hris_geom |>
             colour = NA) + 
     theme_map() +
     theme(legend.position = "left") +
+    annotation_scale(location = "bl", width_hint = 0.4,
+                     unit_category = "imperial") +
     scale_fill_viridis_c(name = "Canopy Cover",
                          direction = -1,
                          option = "plasma",
                          na.value = "transparent")
-
+ 
 ggsave("canopy_cover.jpeg",
        canopy_gg,
        width = plot_width,
@@ -62,6 +65,8 @@ snag_gg <- hris_geom |>
             colour = NA) + 
     theme_map() +
     theme(legend.position = "left") +
+    annotation_scale(location = "bl", width_hint = 0.4,
+                     unit_category = "imperial") +
     scale_fill_viridis_c(name = "Snag\nBasal Area",
                          direction = -1,
                          option = "mako",
@@ -112,7 +117,7 @@ hris_geom |>
 # Map of the habitat
 cso_colors <- c(
     "Nesting" = "#1b7837", 
-    "Foraging" = "#addd8e", 
+    "Foraging" = "#7570b3", 
     "Unlikely" = "#d9d9d9"
 )
 
@@ -124,6 +129,8 @@ habitat_cso_gg <- hris_geom |>
             colour = NA) + 
     theme_map() +
     theme(legend.position = "top") +
+    annotation_scale(location = "bl", width_hint = 0.4,
+                     unit_category = "imperial") +
     scale_fill_manual(name = "Habitat",
                       values = cso_colors,
                       na.translate = FALSE,
@@ -145,10 +152,9 @@ if (PDF_FIGS) {
 
 # Pacific Fisher
 # Want to flag areas where:
-#  a. pred_tpa > 9
-#  b. pred_dia > 25
-#  c. pred_cncvr_pct > 60
-#  d. pred_bapa_softwood > 0.5 * pred_bapa
+#  a. pred_dia > 25
+#  b. pred_cncvr_pct > 60
+#  c. pred_bapa_softwood > 0.5 * pred_bapa
 hris_geom <- hris_geom |> 
     mutate(habitat_pf = case_when(
         pred_dia > 25 &
@@ -175,10 +181,12 @@ habitat_pf_gg <- hris_geom |>
     # slice_sample(prop = 0.1) |> # For testing
     ggplot() +
     geom_spatraster_rgb(data = bg_tiles) +
-    geom_sf(aes(fill = habitat_cso),
+    geom_sf(aes(fill = habitat_pf),
             colour = NA) + 
     theme_map() +
     theme(legend.position = "top") +
+    annotation_scale(location = "bl", width_hint = 0.4,
+                     unit_category = "imperial") +
     scale_fill_manual(name = "Habitat",
                       values = pf_colors,
                       na.translate = FALSE,
